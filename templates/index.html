@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduTools - AI Learning Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>EduTools</h1>
+            <p class="subtitle">AI-Powered Student Tools</p>
+        </header>
+
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('planner')">Study Planner</button>
+            <button class="tab" onclick="switchTab('ai')">AI Assistant</button>
+            <button class="tab" onclick="switchTab('formula')">AI Formula OCR</button>
+            <button class="tab" onclick="switchTab('summarizer')">AI Summarizer</button>
+        </div>
+
+        <div id="planner-tab" class="tab-content active">
+            <div class="planner-grid">
+                <div class="planner-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Task Manager</h2>
+                            <span class="badge" id="todo-count">0 tasks</span>
+                        </div>
+                        <form id="todo-form" class="modern-form">
+                            <div class="form-group">
+                                <label for="todo-task">Task Description</label>
+                                <input type="text" id="todo-task" placeholder="What do you need to do?" required>
+                            </div>
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="todo-subject">Subject</label>
+                                    <input type="text" id="todo-subject" placeholder="e.g., Mathematics" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="todo-deadline">Deadline</label>
+                                    <input type="date" id="todo-deadline">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="todo-priority">Priority Level</label>
+                                <select id="todo-priority">
+                                    <option value="low">Low - Can wait</option>
+                                    <option value="medium" selected>Medium - Important</option>
+                                    <option value="high">High - Urgent</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn-primary">
+                                Add Task
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Active Tasks</h3>
+                            <button class="btn-small" onclick="filterTodos('all')">Show All</button>
+                        </div>
+                        <div class="filter-tabs">
+                            <button class="filter-tab active" onclick="filterTodos('all')">All</button>
+                            <button class="filter-tab" onclick="filterTodos('high')">High Priority</button>
+                            <button class="filter-tab" onclick="filterTodos('medium')">Medium</button>
+                            <button class="filter-tab" onclick="filterTodos('low')">Low</button>
+                        </div>
+                        <div id="todo-list" class="item-list"></div>
+                    </div>
+                </div>
+
+                <div class="planner-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <h2>Study Session Logger</h2>
+                            <span class="badge" id="session-count">0 sessions</span>
+                        </div>
+                        <form id="progress-form" class="modern-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="subject">Subject</label>
+                                    <input type="text" id="subject" placeholder="e.g., Physics" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="duration">Duration (min)</label>
+                                    <input type="number" id="duration" placeholder="45" min="1" required>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="activity">Activity Type</label>
+                                <input type="text" id="activity" placeholder="e.g., Homework, Reading, Practice" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="mood">How did it go?</label>
+                                <div class="mood-selector">
+                                    <label class="mood-option">
+                                        <input type="radio" name="mood" value="excellent">
+                                        <span class="mood-label">Excellent</span>
+                                    </label>
+                                    <label class="mood-option">
+                                        <input type="radio" name="mood" value="good" checked>
+                                        <span class="mood-label">Good</span>
+                                    </label>
+                                    <label class="mood-option">
+                                        <input type="radio" name="mood" value="neutral">
+                                        <span class="mood-label">Okay</span>
+                                    </label>
+                                    <label class="mood-option">
+                                        <input type="radio" name="mood" value="tired">
+                                        <span class="mood-label">Tired</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="notes">Notes (optional)</label>
+                                <textarea id="notes" placeholder="What did you learn? Any challenges?" rows="3"></textarea>
+                            </div>
+                            <button type="submit" class="btn-primary">
+                                Log Session
+                            </button>
+                        </form>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Recent Sessions</h3>
+                            <span class="text-muted">Last 5 entries</span>
+                        </div>
+                        <div id="progress-list" class="item-list"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-section">
+                <h3 class="section-title">Your Progress Overview</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-sessions">0</div>
+                        <div class="stat-label">Study Sessions</div>
+                        <div class="stat-change">This week</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="total-time">0</div>
+                        <div class="stat-label">Minutes Studied</div>
+                        <div class="stat-change">Keep it up</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="completed-tasks">0</div>
+                        <div class="stat-label">Tasks Completed</div>
+                        <div class="stat-change">Great job</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="pending-tasks">0</div>
+                        <div class="stat-label">Tasks Pending</div>
+                        <div class="stat-change">Stay focused</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="ai-tab" class="tab-content">
+            <div class="ai-screen">
+                <div class="ai-header">
+                    <h2>Your AI Study Assistant</h2>
+                    <p class="ai-subtitle">Personalized insights based on your study data</p>
+                </div>
+
+                <div class="ai-main-card">
+                    <div class="ai-face-container">
+                        <div class="ai-eyes-wrapper">
+                            <div class="ai-eye"></div>
+                            <div class="ai-eye"></div>
+                        </div>
+
+                        <div class="waveform-container">
+                            <canvas id="waveform" width="500" height="100"></canvas>
+                        </div>
+
+                        <div id="ai-status" class="ai-status">
+                            <span class="status-text">Ready to analyze</span>
+                        </div>
+                    </div>
+
+                    <div class="ai-content">
+                        <div id="analysis-container" class="analysis-hidden">
+                            <div class="analysis-header">
+                                <h3>Analysis Results</h3>
+                                <span class="timestamp" id="analysis-timestamp"></span>
+                            </div>
+                            <div id="analysis-text" class="analysis-text"></div>
+                        </div>
+
+                        <div id="ai-placeholder" class="ai-placeholder">
+                            <h3>Ready to analyze your logs?</h3>
+                            <p>Click the button below to receive personalized feedback from AI.</p>
+                        </div>
+                    </div>
+
+                    <div class="ai-controls">
+                        <button id="analyze-btn" onclick="analyzeProgress()" class="btn-ai">Generate AI Analysis
+                        </button>
+                        <audio id="analysis-audio" style="display: none;"></audio>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="summarizer-tab" class="tab-content">
+            <div class="tool-screen">
+                <div class="card large-card">
+                    <div class="card-header">
+                        <h2>AI Note Summarizer</h2>
+                        <span class="badge">AI Powered</span>
+                    </div>
+                    <textarea id="note-input" rows="14"></textarea>
+                    <button onclick="summarizeText()" class="btn-primary btn-large">
+                        Generate Summary
+                    </button>
+                    <div id="summary-output" class="output"></div>
+                </div>
+            </div>
+        </div>
+
+        <div id="formula-tab" class="tab-content">
+            <div class="tool-screen">
+                <div class="card large-card">
+                    <div class="card-header">
+                        <h2>AI Math Formula Recognizer</h2>
+                        <span class="badge">OCR</span>
+                    </div>
+                    <div class="upload-area-formula">
+                        <div class="upload-icon"></div>
+                        <div class="upload-text">Select a formula image</div>
+                        <div class="upload-hint">Supports PNG, JPG, JPEG</div>
+                        <input type="file" id="formula-image" accept="image/*" class="file-input">
+                        <button class="btn-select-file" onclick="document.getElementById('formula-image').click()">
+                            Choose Image
+                        </button>
+                    </div>
+                    <div id="preview-container" style="display: none; margin: 20px 0; text-align: center;">
+                        <img id="image-preview" style="max-width: 100%; max-height: 300px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" alt="Formula preview">
+                    </div>
+                    <button onclick="recognizeFormula()" class="btn-primary btn-large">
+                        Extract Formula
+                    </button>
+                    <div id="formula-output" class="output"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
