@@ -1,0 +1,7 @@
+transformers
+python -m pip install paddlepaddle==3.0.0 -i https://www.paddlepaddle.org.cn/packages/stable/cpu/
+python -m pip install paddleocr
+llama-cpp-python
+kokoro>=0.9.2
+soundfile
+torch
